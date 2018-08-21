@@ -1,111 +1,45 @@
-# Locate osgWorks.
-#
-# This script defines:
-#   OSGWORKS_FOUND, set to 1 if found
-#   OSGWORKS_LIBRARIES
-#   OSGWORKS_INCLUDE_DIR
-#   OSGWCONTROLS_LIBRARY
-#   OSGWMX_LIBRARY
-#   OSGWQUERY_LIBRARY
-#   OSGWTOOLS_LIBRARY
-#
-# This script will look in standard locations for installed osgWorks. However, if you
-# install osgWorks into a non-standard location, you can use the OSGWORKS_ROOT
-# variable (in environment or CMake) to specify the location.
-#
-# You can also use osgWorks out of a source tree by specifying OSGWORKS_SOURCE_DIR
-# and OSGWORKS_BUILD_DIR (in environment or CMake).
+# - Find a osgWorks installation or build tree.
+# The following variables are set if osgWorks is found.  If osgWorks is not
+# found, osgWorks_FOUND is set to false.
+#  osgWorks_FOUND         - Set to true when osgWorks is found.
+#  osgWorks_USE_FILE      - CMake file to use osgWorks.
+#  osgWorks_MAJOR_VERSION - The osgWorks major version number.
+#  osgWorks_MINOR_VERSION - The osgWorks minor version number 
+#                       (odd non-release).
+#  osgWorks_BUILD_VERSION - The osgWorks patch level 
+#                       (meaningless for odd minor).
+#  osgWorks_INCLUDE_DIRS  - Include directories for osgWorks
+#  osgWorks_LIBRARY_DIRS  - Link directories for osgWorks libraries
+
+# The following cache entries must be set by the user to locate osgWorks:
+#  osgWorks_DIR  - The directory containing osgWorksConfig.cmake.  
+#             This is either the root of the build tree,
+#             or the lib directory.  This is the 
+#             only cache entry.
 
 
-set( _osgWorksSearchPathS
-    /usr/local
-    /usr
-    /sw/ # Fink
-    /opt/local # DarwinPorts
-    /opt/csw # Blastwave
-    /opt
-    "C:/Program Files/osgWorks"
-    "C:/Program Files (x86)/osgWorks"
-    ~/Library/Frameworks
-    /Library/Frameworks
-)
+# Assume not found.
+SET(osgWorks_FOUND 0)
 
-find_path( OSGWORKS_INCLUDE_DIR
-    osgwTools/FindNamedNode.h
-    HINTS
-        ${OSGWORKS_ROOT}
-        $ENV{OSGWORKS_ROOT}
-        ${OSGWORKS_SOURCE_DIR}
-        $ENV{OSGWORKS_SOURCE_DIR}
-    PATH_SUFFIXES
-        include
-    PATHS
-        ${_osgWorksSearchPathS}
-)
-mark_as_advanced( OSGWORKS_INCLUDE_DIR )
-# message( STATUS ${OSGWORKS_INCLUDE_DIR} )
+# Construct consitent error messages for use below.
+SET(osgWorks_DIR_DESCRIPTION "directory containing osgWorksConfig.cmake.  This is either the root of the build tree, or PREFIX/lib for an installation.")
+SET(osgWorks_DIR_MESSAGE "osgWorks not found.  Set the osgWorks_DIR cmake cache entry to the ${osgWorks_DIR_DESCRIPTION}")
 
+# Use the Config mode of the find_package() command to find osgWorksConfig.
+# If this succeeds (possibly because osgWorks_DIR is already set), the
+# command will have already loaded osgWorksConfig.cmake and set osgWorks_FOUND.
+IF(NOT osgWorks_FOUND)
+  FIND_PACKAGE(osgWorks QUIET NO_MODULE)
+ENDIF(NOT osgWorks_FOUND)
 
-
-macro( FIND_OSGWORKS_LIBRARY MYLIBRARY MYLIBRARYNAME )
-    mark_as_advanced( ${MYLIBRARY} )
-    mark_as_advanced( ${MYLIBRARY}_debug )
-    find_library( ${MYLIBRARY}
-        NAMES
-            ${MYLIBRARYNAME}
-        HINTS
-            ${OSGWORKS_ROOT}
-            $ENV{OSGWORKS_ROOT}
-            ${OSGWORKS_BUILD_DIR}
-            $ENV{OSGWORKS_BUILD_DIR}
-        PATH_SUFFIXES
-            lib
-            bin
-            bin/Release
-        PATHS
-            ${_osgWorksSearchPathS}
-    )
-    find_library( ${MYLIBRARY}_debug
-        NAMES
-            ${MYLIBRARYNAME}d
-        HINTS
-            ${OSGWORKS_ROOT}
-            $ENV{OSGWORKS_ROOT}
-            ${OSGWORKS_BUILD_DIR}
-            $ENV{OSGWORKS_BUILD_DIR}
-        PATH_SUFFIXES
-            lib
-            bin
-            bin/Debug
-        PATHS
-            ${_osgWorksSearchPathS}
-    )
-#    message( STATUS ${${MYLIBRARY}} ${${MYLIBRARY}_debug} )
-#    message( STATUS ${MYLIBRARYNAME} )
-    if( ${MYLIBRARY} )
-        list( APPEND OSGWORKS_LIBRARIES
-            "optimized" ${${MYLIBRARY}}
-        )
-    endif()
-    if( ${MYLIBRARY}_debug )
-        list( APPEND OSGWORKS_LIBRARIES
-            "debug" ${${MYLIBRARY}_debug}
-        )
-    endif()
-#    message( STATUS ${OSGWORKS_LIBRARIES} )
-endmacro()
-
-unset( OSGWORKS_LIBRARIES )
-FIND_OSGWORKS_LIBRARY( OSGWCONTROLS_LIBRARY osgwControls )
-FIND_OSGWORKS_LIBRARY( OSGWMX_LIBRARY osgwMx )
-FIND_OSGWORKS_LIBRARY( OSGWQUERY_LIBRARY osgwQuery )
-FIND_OSGWORKS_LIBRARY( OSGWTOOLS_LIBRARY osgwTools )
-
-# handle the QUIETLY and REQUIRED arguments and set FMOD_FOUND to TRUE if all listed variables are TRUE
-include( FindPackageHandleStandardArgs )
-find_package_handle_standard_args(
-    OSGWorks
-    DEFAULT_MSG 
-    OSGWORKS_LIBRARIES 
-    OSGWORKS_INCLUDE_DIR
-)
+#-----------------------------------------------------------------------------
+IF(NOT osgWorks_FOUND)
+  # osgWorks not found, explain to the user how to specify its location.
+  IF(osgWorks_FIND_REQUIRED)
+    MESSAGE(FATAL_ERROR ${osgWorks_DIR_MESSAGE})
+  ELSE(osgWorks_FIND_REQUIRED)
+    IF(NOT osgWorks_FIND_QUIETLY)
+      MESSAGE(STATUS ${osgWorks_DIR_MESSAGE})
+    ENDIF(NOT osgWorks_FIND_QUIETLY)
+  ENDIF(osgWorks_FIND_REQUIRED)
+ENDIF(NOT osgWorks_FOUND)
